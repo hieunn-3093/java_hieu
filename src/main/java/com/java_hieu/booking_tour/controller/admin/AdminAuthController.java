@@ -44,8 +44,7 @@ public class AdminAuthController {
 
   @GetMapping("/dashboard")
   public String dashboardPage(Model model) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    model.addAttribute("username", auth.getName());
+    model.addAttribute("pageTitle", "<i class='bi bi-speedometer2 me-2 text-danger'></i>Dashboard");
     return "admin/dashboard";
   }
 }
