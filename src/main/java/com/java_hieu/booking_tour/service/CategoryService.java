@@ -6,6 +6,7 @@ import com.java_hieu.booking_tour.entity.Category;
 import com.java_hieu.booking_tour.repository.projection.CategoryProjection;
 
 public interface CategoryService {
+  List<Category> findAll();
   List<CategoryProjection> findAllWithTourCount();
   Category findById(Integer id);
   Category create(Category category);
