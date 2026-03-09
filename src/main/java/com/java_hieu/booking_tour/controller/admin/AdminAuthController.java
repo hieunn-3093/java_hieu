@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.java_hieu.booking_tour.constant.MessageConstants;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminAuthController {
@@ -26,15 +28,15 @@ public class AdminAuthController {
     }
 
     if (error != null) {
-      model.addAttribute("errorMessage", "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.");
+      model.addAttribute("errorMessage", MessageConstants.Auth.LOGIN_ERROR);
     }
 
     if (forbidden != null) {
-      model.addAttribute("errorMessage", "Tài khoản này không có quyền truy cập trang quản trị.");
+      model.addAttribute("errorMessage", MessageConstants.Auth.LOGIN_FORBIDDEN);
     }
 
     if (logout != null) {
-      model.addAttribute("successMessage", "Bạn đã đăng xuất thành công.");
+      model.addAttribute("successMessage", MessageConstants.Auth.LOGOUT_SUCCESS);
     }
 
     return "admin/login";
