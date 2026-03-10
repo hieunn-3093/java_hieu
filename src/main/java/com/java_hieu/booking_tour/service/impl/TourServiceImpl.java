@@ -1,21 +1,30 @@
 package com.java_hieu.booking_tour.service.impl;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.java_hieu.booking_tour.constant.MessageConstants;
+import com.java_hieu.booking_tour.dto.common.PageResponse;
+import com.java_hieu.booking_tour.dto.tour.TourDetailResponse;
+import com.java_hieu.booking_tour.dto.tour.TourListRequest;
+import com.java_hieu.booking_tour.dto.tour.TourListResponse;
 import com.java_hieu.booking_tour.entity.BookingStatus;
 import com.java_hieu.booking_tour.entity.Tour;
 import com.java_hieu.booking_tour.entity.TourStatus;
 import com.java_hieu.booking_tour.exception.BusinessException;
 import com.java_hieu.booking_tour.exception.DuplicateResourceException;
 import com.java_hieu.booking_tour.exception.ResourceNotFoundException;
+import com.java_hieu.booking_tour.mapper.TourMapper;
 import com.java_hieu.booking_tour.repository.BookingRepository;
 import com.java_hieu.booking_tour.repository.TourRepository;
+import com.java_hieu.booking_tour.repository.specification.TourSpecification;
 import com.java_hieu.booking_tour.service.TourService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +35,7 @@ public class TourServiceImpl implements TourService {
 
   private final TourRepository tourRepository;
   private final BookingRepository bookingRepository;
+  private final TourMapper tourMapper;
 
   @Override
   public Page<Tour> getPage(int page, int size) {
@@ -105,5 +115,38 @@ public class TourServiceImpl implements TourService {
       throw new BusinessException(HttpStatus.BAD_REQUEST, MessageConstants.Error.TOUR_HAS_ACTIVE_BOOKINGS);
     }
     tourRepository.deleteById(id);
+  }
+
+  @Override
+  public PageResponse<TourListResponse> getListTour(TourListRequest request) {
+    Specification<Tour> spec = Specification
+      .where(TourSpecification.withCategory())
+      .and(TourSpecification.hasKeyword(request.getKeyword()))
+      .and(TourSpecification.hasCategoryId(request.getCategoryId()))
+      .and(TourSpecification.hasMinPrice(request.getMinPrice()))
+      .and(TourSpecification.hasMaxPrice(request.getMaxPrice()));
+
+    Page<Tour> page = tourRepository.findAll(spec, PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "id")));
+
+    List<TourListResponse> items = page.getContent().stream()
+      .map(tourMapper::toListResponse)
+      .toList();
+
+    return PageResponse.<TourListResponse>builder()
+      .items(items)
+      .page(page.getNumber())
+      .size(page.getSize())
+      .totalElements(page.getTotalElements())
+      .totalPages(page.getTotalPages())
+      .hasNext(page.hasNext())
+      .hasPrevious(page.hasPrevious())
+      .build();
+  }
+
+  @Override
+  public TourDetailResponse getTourDetail(Integer id) {
+    Tour tour = tourRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Tour", "id", id));
+    return tourMapper.toDetailResponse(tour);
   }
 }

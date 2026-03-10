@@ -10,6 +10,8 @@ public final class ApiConstants {
   public static final String AUTH_PREFIX = "/api/auth";
   public static final String AUTH_LOGIN = "/api/auth/login";
   public static final String AUTH_REGISTER = "/api/auth/register";
+  public static final String TOUR_GET_LIST = "/api/tours";
+  public static final String TOUR_GET_DETAIL = "/api/tours/{id}";
 
   // private api
   public static final String AUTH_LOGOUT = "/api/auth/logout";
@@ -23,6 +25,8 @@ public final class ApiConstants {
     AUTH_LOGIN,
     AUTH_REGISTER,
     HEALTH_PATH,
+    TOUR_GET_LIST,
+    TOUR_GET_DETAIL,
   };
 
   public static final String[] AUTHENTICATED_PATHS = {
