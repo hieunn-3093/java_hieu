@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.java_hieu.booking_tour.constant.MessageConstants;
-import com.java_hieu.booking_tour.dto.admin.category.CategoryListResponse;
 import com.java_hieu.booking_tour.entity.Category;
-import com.java_hieu.booking_tour.exception.ResourceNotFoundException;
-import com.java_hieu.booking_tour.repository.CategoryRepository;
+import com.java_hieu.booking_tour.repository.projection.CategoryProjection;
+import com.java_hieu.booking_tour.service.CategoryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,26 +23,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminCategoryController {
 
-  private final CategoryRepository categoryRepository;
+  private final CategoryService categoryService;
 
   @GetMapping
   public String index(Model model) {
-    List<CategoryListResponse> categories = categoryRepository.findAllWithTourCount();
+    List<CategoryProjection> categories = categoryService.findAllWithTourCount();
     model.addAttribute("categories", categories);
-    model.addAttribute("pageTitle", "<i class='bi bi-tags-fill me-2 text-danger'></i>Quản lý Danh mục");
     return "admin/category/index";
   }
 
   @GetMapping("/create")
   public String create(Model model) {
     model.addAttribute("category", new Category());
-    model.addAttribute("pageTitle", "<i class='bi bi-plus-circle-fill me-2 text-danger'></i>Thêm danh mục mới");
     return "admin/category/create";
   }
 
   @PostMapping("/create")
   public String store(@ModelAttribute Category category, RedirectAttributes redirectAttributes) {
-    categoryRepository.save(category);
+    categoryService.create(category);
     redirectAttributes.addFlashAttribute("success", MessageConstants.Action.ADD_SUCCESS);
     return "redirect:/admin/categories";
   }
@@ -51,11 +48,10 @@ public class AdminCategoryController {
   @GetMapping("/{id}/edit")
   public String edit(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
     try {
-      Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+      Category category = categoryService.findById(id);
       model.addAttribute("category", category);
-      model.addAttribute("pageTitle", "<i class='bi bi-pencil-fill me-2 text-danger'></i>Sửa danh mục");
       return "admin/category/edit";
-    } catch (ResourceNotFoundException e) {
+    } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", MessageConstants.Error.NOT_FOUND);
       return "redirect:/admin/categories";
     }
@@ -66,10 +62,9 @@ public class AdminCategoryController {
                         @ModelAttribute Category category,
                         RedirectAttributes redirectAttributes) {
     try {
-      category.setId(id);
-      categoryRepository.save(category);
+      categoryService.update(id, category);
       redirectAttributes.addFlashAttribute("success", MessageConstants.Action.UPDATE_SUCCESS);
-    } catch (ResourceNotFoundException e) {
+    } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", MessageConstants.Error.NOT_FOUND);
     }
     return "redirect:/admin/categories";
@@ -79,9 +74,9 @@ public class AdminCategoryController {
   public String delete(@PathVariable Integer id,
                         RedirectAttributes redirectAttributes) {
     try {
-      categoryRepository.deleteById(id);
+      categoryService.delete(id);
       redirectAttributes.addFlashAttribute("success", MessageConstants.Action.DELETE_SUCCESS);
-    } catch (ResourceNotFoundException e) {
+    } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error", MessageConstants.Error.NOT_FOUND);
     }
     return "redirect:/admin/categories";

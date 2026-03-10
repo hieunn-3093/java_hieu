@@ -156,17 +156,19 @@
 <!--
   =====================================================================
   FRAGMENT: topbar
-  Dùng: th:replace="~{admin/fragments/layout :: topbar}"
-  Đặt biến pageTitle trong controller: model.addAttribute("pageTitle", "...")
+  Dùng: th:replace="~{admin/fragments/layout :: topbar('Tên trang', 'bi-icon-name')}"
   =====================================================================
 -->
-<th:block th:fragment="topbar">
+<th:block th:fragment="topbar(pageTitle, pageIcon)">
   <div id="topbar">
     <div class="d-flex align-items-center gap-3">
       <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle">
         <i class="bi bi-list fs-5"></i>
       </button>
-      <span class="topbar-title" th:utext="${pageTitle}">Trang quản trị</span>
+      <span class="topbar-title">
+        <i th:class="${'bi ' + pageIcon + ' me-2 text-danger'}"></i>
+        <span th:text="${pageTitle}">Trang quản trị</span>
+      </span>
     </div>
     <div class="topbar-right">
       <div class="user-badge">

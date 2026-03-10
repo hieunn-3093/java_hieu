@@ -43,8 +43,7 @@ public class AdminAuthController {
   }
 
   @GetMapping("/dashboard")
-  public String dashboardPage(Model model) {
-    model.addAttribute("pageTitle", "<i class='bi bi-speedometer2 me-2 text-danger'></i>Dashboard");
+  public String dashboardPage() {
     return "admin/dashboard";
   }
 }
