@@ -22,4 +22,16 @@ public final class MessageConstants {
     public static final String FULLNAME_BLANK = "Họ tên không được để trống";
     public static final String EMAIL_INVALID = "Email không hợp lệ";
   }
+
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Action {
+    public static final String ADD_SUCCESS = "Thêm mới dữ liệu thành công!";
+    public static final String UPDATE_SUCCESS = "Cập nhật dữ liệu thành công!";
+    public static final String DELETE_SUCCESS = "Xóa dữ liệu thành công!";
+  }
+
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Error {
+    public static final String NOT_FOUND = "Dữ liệu không tồn tại!";
+  }
 }

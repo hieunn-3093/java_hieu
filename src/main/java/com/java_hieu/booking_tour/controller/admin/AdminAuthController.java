@@ -43,9 +43,7 @@ public class AdminAuthController {
   }
 
   @GetMapping("/dashboard")
-  public String dashboardPage(Model model) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    model.addAttribute("username", auth.getName());
+  public String dashboardPage() {
     return "admin/dashboard";
   }
 }
