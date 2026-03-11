@@ -1,4 +1,4 @@
-package com.java_hieu.booking_tour.service;
+package com.java_hieu.booking_tour.service.impl;
 
 import java.util.List;
 

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <th:block th:replace="~{admin/fragments/layout :: adminHead}"></th:block>
+  <title>Người dùng | Booking Tour Admin</title>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<th:block th:replace="~{admin/fragments/layout :: sidebar('users')}"></th:block>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+
+  <!-- TOPBAR -->
+  <th:block th:replace="~{admin/fragments/layout :: topbar('Quản lý Người dùng', 'bi-people-fill')}"></th:block>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item active">Người dùng</li>
+      </ol>
+    </nav>
+
+    <!-- Flash messages -->
+    <th:block th:replace="~{admin/fragments/flash_message :: flashMessages}"></th:block>
+
+    <!-- Header row -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-people-fill me-2 text-danger"></i>Danh sách người dùng
+        <span class="badge bg-danger ms-2 fw-normal fs-6" th:text="${userPage.totalElements}">0</span>
+      </h5>
+      <!-- Search form -->
+      <form method="get" action="/admin/users" class="d-flex gap-2">
+        <input type="text" name="keyword" class="form-control form-control-sm"
+               placeholder="Tìm theo tên đăng nhập, họ tên..."
+               style="width: 260px;"
+               th:value="${keyword}"/>
+        <button type="submit" class="btn btn-danger btn-sm">
+          <i class="bi bi-search"></i>
+        </button>
+        <a href="/admin/users" class="btn btn-outline-secondary btn-sm" th:if="${keyword != null and !keyword.isBlank()}">
+          <i class="bi bi-x-circle"></i>
+        </a>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Tên đăng nhập</th>
+                <th>Họ và tên</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user, stat : ${users}">
+                <td th:text="${currentPage * pageSize + stat.index + 1}">1</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:34px; height:34px; border-radius:50%;
+                                background: linear-gradient(135deg, #e94560, #c0392b);
+                                display:flex; align-items:center; justify-content:center;
+                                color:#fff; font-size:.85rem; font-weight:700; flex-shrink:0;"
+                         th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">A</div>
+                    <strong th:text="${user.username}">username</strong>
+                  </div>
+                </td>
+                <td th:text="${user.fullName != null ? user.fullName : '—'}">Họ tên</td>
+                <td th:text="${user.email != null ? user.email : '—'}">email@example.com</td>
+                <td>
+                  <span th:if="${user.role != null}"
+                        th:classappend="${user.role.name.name() == 'ROLE_ADMIN'} ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-primary-subtle text-primary border border-primary-subtle'"
+                        class="badge px-2 py-1"
+                        th:text="${user.role.name.name() == 'ROLE_ADMIN'} ? 'Admin' : 'User'">
+                    Role
+                  </span>
+                  <span th:if="${user.role == null}" class="text-muted">—</span>
+                </td>
+                <td>
+                  <span th:if="${user.status == 1}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                    <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                  </span>
+                  <span th:if="${user.status != 1}" class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">
+                    <i class="bi bi-x-circle-fill me-1"></i>Bị khoá
+                  </span>
+                </td>
+                <td>
+                  <span class="text-muted small"
+                        th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm') : '—'}">
+                    01/01/2024
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Không có dữ liệu -->
+              <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="bi bi-people fs-2 d-block mb-2"></i>
+                  <span th:if="${keyword != null and !keyword.isBlank()}">
+                    Không tìm thấy người dùng với từ khoá "<strong th:text="${keyword}"></strong>".
+                  </span>
+                  <span th:if="${keyword == null or keyword.isBlank()}">
+                    Chưa có người dùng nào.
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <th:block th:replace="~{admin/fragments/pagination :: pagination(
+          ${keyword != null and !keyword.isBlank() ? '/admin/users?keyword=' + keyword : '/admin/users'},
+          ${currentPage},
+          ${userPage.totalPages},
+          ${userPage.totalElements},
+          ${pageSize}
+      )}"></th:block>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main-content -->
+
+<!-- SCRIPTS -->
+<th:block th:replace="~{admin/fragments/layout :: scripts}"></th:block>
+</body>
+</html>

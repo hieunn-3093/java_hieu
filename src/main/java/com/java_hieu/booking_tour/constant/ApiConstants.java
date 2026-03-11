@@ -15,6 +15,7 @@ public final class ApiConstants {
 
   // private api
   public static final String AUTH_LOGOUT = "/api/auth/logout";
+  public static final String USER_PROFILE = "/api/users/profile";
 
   public static final String[] SECURITY_MATCHER_PATHS = {
     API_PATTERN,
@@ -31,5 +32,6 @@ public final class ApiConstants {
 
   public static final String[] AUTHENTICATED_PATHS = {
     AUTH_LOGOUT,
+    USER_PROFILE,
   };
 }
