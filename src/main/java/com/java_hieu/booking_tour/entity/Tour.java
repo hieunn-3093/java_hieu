@@ -18,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -60,7 +59,6 @@ public class Tour {
     private String location;
 
     @NotNull(message = MessageConstants.Validation.TOUR_START_DATE_REQUIRED)
-    @FutureOrPresent(message = MessageConstants.Validation.TOUR_START_DATE_FUTURE)
     private LocalDate startDate;
 
     private String duration;

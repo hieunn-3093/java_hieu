@@ -34,6 +34,7 @@
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h5 class="fw-bold mb-0">
         <i class="bi bi-map-fill me-2 text-danger"></i>Danh sách tour
+        <span class="badge bg-danger ms-2 fw-normal fs-6" th:text="${tourPage.totalElements}">0</span>
       </h5>
       <a href="/admin/tours/create" class="btn btn-danger btn-sm">
         <i class="bi bi-plus-circle me-1"></i> Thêm tour
@@ -61,7 +62,7 @@
             </thead>
             <tbody>
               <tr th:each="tour, stat : ${tours}">
-                <td th:text="${stat.index + 1}">1</td>
+                <td th:text="${currentPage * pageSize + stat.index + 1}">1</td>
                 <td>
                   <strong th:text="${tour.title}">Tên tour</strong>
                 </td>
@@ -109,6 +110,9 @@
           </table>
         </div>
       </div>
+
+      <!-- Pagination footer -->
+      <th:block th:replace="~{admin/fragments/pagination :: pagination('/admin/tours', ${currentPage}, ${totalPages}, ${tourPage.totalElements}, ${pageSize})}"></th:block>
     </div>
 
   </div><!-- /page-content -->

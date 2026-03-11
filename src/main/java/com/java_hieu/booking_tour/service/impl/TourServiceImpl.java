@@ -1,8 +1,9 @@
 package com.java_hieu.booking_tour.service.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,9 @@ public class TourServiceImpl implements TourService {
   private final BookingRepository bookingRepository;
 
   @Override
-  public List<Tour> findAll() {
-    return tourRepository.findAll();
+  public Page<Tour> getPage(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+    return tourRepository.findAll(pageable);
   }
 
   @Override
@@ -41,9 +43,6 @@ public class TourServiceImpl implements TourService {
   public Tour create(Tour tour) {
     if (tourRepository.existsByTitle(tour.getTitle())) {
       throw new DuplicateResourceException(MessageConstants.Error.TOUR_TITLE_DUPLICATE);
-    }
-    if (tour.getStartDate() != null && tour.getStartDate().isBefore(LocalDate.now())) {
-      throw new BusinessException(HttpStatus.BAD_REQUEST, MessageConstants.Validation.TOUR_START_DATE_FUTURE);
     }
     if (tour.getStatus() == null) {
       tour.setStatus(TourStatus.AVAILABLE);
@@ -60,11 +59,16 @@ public class TourServiceImpl implements TourService {
       throw new DuplicateResourceException(MessageConstants.Error.TOUR_TITLE_DUPLICATE);
     }
 
-    if (tour.getStartDate() != null && tour.getStartDate().isBefore(LocalDate.now())) {
-      throw new BusinessException(HttpStatus.BAD_REQUEST, MessageConstants.Validation.TOUR_START_DATE_FUTURE);
+    TourStatus currentStatus = existing.getStatus();
+    TourStatus newStatus = tour.getStatus();
+    if (currentStatus != null && newStatus != null
+        && currentStatus != newStatus
+        && !currentStatus.canTransitionTo(newStatus)) {
+      throw new BusinessException(HttpStatus.BAD_REQUEST,
+          String.format(MessageConstants.Error.TOUR_STATUS_TRANSITION_INVALID, currentStatus, newStatus));
     }
 
-    if (existing.getStatus() == TourStatus.FULL && tour.getStatus() == TourStatus.AVAILABLE) {
+    if (currentStatus == TourStatus.FULL && newStatus == TourStatus.AVAILABLE) {
       boolean isAddingSlots = tour.getMaxSlots() != null
           && existing.getMaxSlots() != null
           && tour.getMaxSlots() > existing.getMaxSlots();
@@ -80,14 +84,25 @@ public class TourServiceImpl implements TourService {
       }
     }
 
-    tour.setId(id);
-    return tourRepository.save(tour);
+    existing.setCategory(tour.getCategory());
+    existing.setTitle(tour.getTitle());
+    existing.setDescription(tour.getDescription());
+    existing.setPrice(tour.getPrice());
+    existing.setLocation(tour.getLocation());
+    existing.setStartDate(tour.getStartDate());
+    existing.setDuration(tour.getDuration());
+    existing.setMaxSlots(tour.getMaxSlots());
+    existing.setStatus(tour.getStatus());
+    return tourRepository.save(existing);
   }
 
   @Override
   public void delete(Integer id) {
     if (!tourRepository.existsById(id)) {
       throw new ResourceNotFoundException("Tour", "id", id);
+    }
+    if (bookingRepository.existsByTourIdAndStatusNot(id, BookingStatus.CANCELLED)) {
+      throw new BusinessException(HttpStatus.BAD_REQUEST, MessageConstants.Error.TOUR_HAS_ACTIVE_BOOKINGS);
     }
     tourRepository.deleteById(id);
   }

@@ -114,7 +114,6 @@
                   <label for="startDate" class="form-label fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
                   <input type="date" id="startDate" th:field="*{startDate}"
                          th:class="${#fields.hasErrors('startDate')} ? 'form-control is-invalid' : 'form-control'"
-                         th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}"
                          required />
                   <div class="invalid-feedback" th:errors="*{startDate}">Ngày bắt đầu không hợp lệ</div>
                 </div>

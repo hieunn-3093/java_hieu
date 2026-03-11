@@ -1,7 +1,6 @@
 package com.java_hieu.booking_tour.controller.admin;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,9 +9,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.java_hieu.booking_tour.constant.MessageConstants;
+import com.java_hieu.booking_tour.constant.WebConstants;
 import com.java_hieu.booking_tour.entity.Tour;
 import com.java_hieu.booking_tour.exception.BusinessException;
 import com.java_hieu.booking_tour.exception.DuplicateResourceException;
@@ -31,9 +32,15 @@ public class AdminTourController {
   private final CategoryService categoryService;
 
   @GetMapping
-  public String index(Model model) {
-    List<Tour> tours = tourService.findAll();
-    model.addAttribute("tours", tours);
+  public String index(@RequestParam(defaultValue = "" + WebConstants.DEFAULT_PAGE) int page,
+                      @RequestParam(defaultValue = "" + WebConstants.DEFAULT_PAGE_SIZE) int size,
+                      Model model) {
+    Page<Tour> tourPage = tourService.getPage(page, size);
+    model.addAttribute("tourPage", tourPage);
+    model.addAttribute("tours", tourPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", tourPage.getTotalPages());
+    model.addAttribute("pageSize", size);
     return "admin/tour/index";
   }
 
