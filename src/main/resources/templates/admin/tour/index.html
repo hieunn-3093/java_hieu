@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <th:block th:replace="~{admin/fragments/layout :: adminHead}"></th:block>
+  <title>Tour | Booking Tour Admin</title>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<th:block th:replace="~{admin/fragments/layout :: sidebar('tours')}"></th:block>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+
+  <!-- TOPBAR -->
+  <th:block th:replace="~{admin/fragments/layout :: topbar('Quản lý Tour', 'bi-map-fill')}"></th:block>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/admin/dashboard" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item active">Tour</li>
+      </ol>
+    </nav>
+
+    <!-- Flash messages -->
+    <th:block th:replace="~{admin/fragments/flash_message :: flashMessages}"></th:block>
+
+    <!-- Header row -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-map-fill me-2 text-danger"></i>Danh sách tour
+        <span class="badge bg-danger ms-2 fw-normal fs-6" th:text="${tourPage.totalElements}">0</span>
+      </h5>
+      <a href="/admin/tours/create" class="btn btn-danger btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Thêm tour
+      </a>
+    </div>
+
+    <!-- Table -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Tên tour</th>
+                <th>Danh mục</th>
+                <th>Địa điểm</th>
+                <th>Giá</th>
+                <th>Ngày bắt đầu</th>
+                <th>Thời gian</th>
+                <th>Slots</th>
+                <th>Trạng thái</th>
+                <th style="width: 120px;" class="text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="tour, stat : ${tours}">
+                <td th:text="${currentPage * pageSize + stat.index + 1}">1</td>
+                <td>
+                  <strong th:text="${tour.title}">Tên tour</strong>
+                </td>
+                <td>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle"
+                        th:text="${tour.category != null ? tour.category.name : '—'}">Danh mục</span>
+                </td>
+                <td>
+                  <i class="bi bi-geo-alt-fill text-muted me-1"></i>
+                  <span th:text="${tour.location != null ? tour.location : '—'}">Địa điểm</span>
+                </td>
+                <td>
+                  <span class="fw-semibold text-success"
+                        th:text="${tour.price != null ? #numbers.formatDecimal(tour.price, 0, 'COMMA', 0, 'POINT') + ' ₫' : '—'}">
+                    0 ₫
+                  </span>
+                </td>
+                <td th:text="${tour.startDate != null ? #temporals.format(tour.startDate, 'dd/MM/yyyy') : '—'}">—</td>
+                <td th:text="${tour.duration != null ? tour.duration : '—'}">—</td>
+                <td>
+                  <span class="badge bg-secondary" th:text="${tour.maxSlots != null ? tour.maxSlots : '—'}">—</span>
+                </td>
+                <td>
+                  <span th:if="${tour.status != null}"
+                        th:text="${tour.status}"
+                        th:classappend="${tour.status.name() == 'ACTIVE'} ? 'badge bg-success' : 'badge bg-secondary'">
+                  </span>
+                  <span th:if="${tour.status == null}" class="text-muted">—</span>
+                </td>
+                <td class="text-center">
+                  <a th:href="@{/admin/tours/{id}/edit(id=${tour.id})}"
+                     class="btn btn-sm btn-outline-primary me-1" title="Sửa">
+                    <i class="bi bi-pencil-fill"></i>
+                  </a>
+                  <form th:action="@{/admin/tours/{id}/delete(id=${tour.id})}"
+                        method="post" class="d-inline"
+                        onsubmit="return confirm('Bạn chắc chắn muốn xoá tour này?')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xoá">
+                      <i class="bi bi-trash-fill"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination footer -->
+      <th:block th:replace="~{admin/fragments/pagination :: pagination('/admin/tours', ${currentPage}, ${totalPages}, ${tourPage.totalElements}, ${pageSize})}"></th:block>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main-content -->
+
+<!-- SCRIPTS -->
+<th:block th:replace="~{admin/fragments/layout :: scripts}"></th:block>
+</body>
+</html>

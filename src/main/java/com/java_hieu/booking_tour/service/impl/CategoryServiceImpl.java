@@ -19,6 +19,11 @@ public class CategoryServiceImpl implements CategoryService {
   private final CategoryRepository categoryRepository;
 
   @Override
+  public List<Category> findAll() {
+    return categoryRepository.findAll();
+  }
+
+  @Override
   public List<CategoryProjection> findAllWithTourCount() {
     return categoryRepository.findAllWithTourCount();
   }
